@@ -273,22 +273,25 @@
 };
 
         // Listen to Auth State & Sync Live Firestore Balance Data
-        auth.onAuthStateChanged(async (user) => {
+                auth.onAuthStateChanged(async (user) => {
             if (user && !isLoading) {
                 userName = user.displayName ? user.displayName.split(' ')[0] : 'user';
                 
                 try {
-                                    const doc = await db.collection('users').doc(user.uid).get();
-                if (doc.exists) {
-                    userAccountDetails = doc.data();
-                    savingsBalance = userAccountDetails.savingsBalance || 0; // <--- ADD THIS
-                    if (!userAccountDetails.symbol && userAccountDetails.currencySymbol) {
-                        userAccountDetails.symbol = userAccountDetails.currencySymbol;
-                    }
-                } else if (user.photoURL) {
+                    const doc = await db.collection('users').doc(user.uid).get();
+                    if (doc.exists) {
+                        userAccountDetails = doc.data();
+                        savingsBalance = userAccountDetails.savingsBalance || 0; // <--- ADD THIS
+                        if (!userAccountDetails.symbol && userAccountDetails.currencySymbol) {
+                            userAccountDetails.symbol = userAccountDetails.currencySymbol;
+                        }
+                    } else if (user.photoURL) {
                         userAccountDetails = JSON.parse(user.photoURL);
                     }
                     await fetchUserTransactions(user.uid, userAccountDetails.accountNumber);
+                    
+                    // START LISTENING FOR INCOMING CREDITS IN REAL-TIME
+                    listenForIncomingTransactions(user.uid);
                 } catch (e) {
                     if (user.photoURL) {
                         try { userAccountDetails = JSON.parse(user.photoURL); } catch (err) {}
@@ -310,6 +313,7 @@
                 render();
             }
         });
+
 
         function triggerLoading(message, callback) {
             isLoading = true;
@@ -1141,7 +1145,7 @@
             `;
         }
 
-        window.handleExecuteWithdrawal = async function() {
+                        window.handleExecuteWithdrawal = async function() {
             const pinVal = document.getElementById('withdraw-pin-val').value.trim();
             if (pinVal.length < 4) {
                 alert('Please enter a valid 4-digit PIN.');
@@ -1171,6 +1175,7 @@
                 await userRef.update({ balance: newBalance });
                 userAccountDetails.balance = newBalance;
 
+                const symbol = userAccountDetails.symbol || '$';
                 const now = new Date();
                 withdrawData.refNumber = 'WDR-' + Math.floor(100000 + Math.random() * 900000) + '-REF';
                 withdrawData.dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
@@ -1190,7 +1195,7 @@
                     recipientName: recipientDisplay,
                     recipientAccount: withdrawData.accountNumber || withdrawData.paypalEmail || withdrawData.cashTag || withdrawData.method,
                     amount: withdrawData.amount,
-                    symbol: userAccountDetails.symbol || '$',
+                    symbol: symbol,
                     type: 'Withdrawal',
                     refNumber: withdrawData.refNumber,
                     note: withdrawData.note,
@@ -1209,6 +1214,12 @@
 
                 await db.collection('transactions').add(withdrawalPayload);
                 userTransactions.unshift(withdrawalPayload);
+
+                // ---> ADD THIS BLOCK TO TRIGGER THE NOTIFICATION <---
+                requestNotificationPermissionAndNotify(
+                    "Heritage Bank: Withdrawal Pending ⏳", 
+                    `Your withdrawal of ${symbol}${Number(withdrawData.amount).toLocaleString()} via ${withdrawData.method} has been submitted.`
+                );
 
                 isLoading = false;
                 currentView = 'withdraw-pending';
@@ -1652,7 +1663,7 @@
             render();
         };
 
-        window.handleExecuteTransfer = async function() {
+                window.handleExecuteTransfer = async function() {
             const pinVal = document.getElementById('transfer-pin-val').value.trim();
             if (pinVal.length < 4) {
                 alert('Please enter a valid 4-digit transaction PIN.');
@@ -1690,6 +1701,7 @@
 
                 userAccountDetails.balance = newSenderBalance;
 
+                const symbol = userAccountDetails.symbol || '$';
                 const now = new Date();
                 lastTransaction = {
                     amount: transferData.amount,
@@ -1699,14 +1711,14 @@
                     dateStr: now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
                 };
 
-                                                                await db.collection('transactions').add({
+                await db.collection('transactions').add({
                     senderUid: currentUser.uid,
                     senderName: userName,
                     recipientName: transferData.recipientName,
                     recipientAccount: transferData.recipientAccount,
-                    recipientUid: transferData.recipientUid, // <--- Crucial for matching the recipient securely
+                    recipientUid: transferData.recipientUid,
                     amount: transferData.amount,
-                    symbol: userAccountDetails.symbol || '$',
+                    symbol: symbol,
                     type: 'Transfer',
                     refNumber: lastTransaction.refNumber,
                     customProcessingFee: transferData.customProcessingFee || 0,
@@ -1722,13 +1734,19 @@
                     recipientName: transferData.recipientName,
                     recipientAccount: transferData.recipientAccount,
                     amount: transferData.amount,
-                    symbol: userAccountDetails.symbol || '$',
+                    symbol: symbol,
                     type: 'Transfer',
                     refNumber: lastTransaction.refNumber,
                     dateStr: lastTransaction.dateStr,
                     status: 'Successful',
-                    isDebit: true // <--- AND HERE
+                    isDebit: true
                 });
+
+                // Trigger push notification once transfer succeeds
+                requestNotificationPermissionAndNotify(
+                    "Heritage Bank: Money Sent 💸", 
+                    `You successfully sent ${symbol}${Number(transferData.amount).toLocaleString()} to ${transferData.recipientName}.`
+                );
 
                 isLoading = false;
                 currentView = 'receipt';
@@ -1739,6 +1757,7 @@
                 render();
             }
         };
+
 
         window.switchAuthTab = function(tab) {
             triggerLoading('Switching view...', () => {
@@ -2303,7 +2322,7 @@ function renderCardView() {
     `;
 }
 
-        let html5QrCode = null;
+                let html5QrCode = null;
 
         window.openQrScannerModal = function() {
             const modal = document.getElementById('qr-scanner-modal');
@@ -2316,12 +2335,9 @@ function renderCardView() {
                         { facingMode: "environment" }, 
                         { fps: 10, qrbox: { width: 220, height: 220 } },
                         async (decodedText) => {
-                            // Successful scan! decodedText contains the account number encoded in the QR code
                             await handleScannedAccountNumber(decodedText.trim());
                         },
-                        (errorMessage) => {
-                            // Scanning frame errors can be ignored safely
-                        }
+                        (errorMessage) => {}
                     ).catch(err => {
                         alert("Unable to access camera. Please check camera permissions.");
                         closeQrScannerModal();
@@ -2383,9 +2399,118 @@ function renderCardView() {
             }
         };
 
-                                                                        window.openSmartSuppChat = function() {
+        window.openSmartSuppChat = function() {
             window.location.href = 'support.html';
         };
+
+        let transactionListener = null;
+
+        function listenForIncomingTransactions(userId) {
+            if (transactionListener) transactionListener();
+
+            transactionListener = db.collection('transactions')
+                .where('recipientUid', '==', userId)
+                .orderBy('timestamp', 'desc')
+                .limit(1)
+                .onSnapshot((snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const txData = change.doc.data();
+                            const txTime = txData.timestamp?.toMillis() || 0;
+                            const now = Date.now();
+                            
+                            if (now - txTime < 60000) { 
+                                const symbol = txData.symbol || '$';
+                                const sender = txData.senderName || 'A Heritage User';
+                                
+                                requestNotificationPermissionAndNotify(
+                                    "Heritage Bank: Money Received 💰",
+                                    `You received ${symbol}${Number(txData.amount).toLocaleString()} from ${sender}.`
+                                );
+                            }
+                        }
+                    });
+                }, (error) => {
+                    console.error("Transaction listener error:", error);
+                });
+        }
+
+        function requestNotificationPermissionAndNotify(title, body) {
+            showInAppBanner(title, body);
+
+            if ('Notification' in window) {
+                if (Notification.permission === 'granted') {
+                    showLocalPush(title, body);
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            showLocalPush(title, body);
+                        }
+                    });
+                }
+            }
+        }
+
+        function showLocalPush(title, body) {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then((registration) => {
+                    registration.showNotification(title, {
+                        body: body,
+                        icon: 'favicon.png',
+                        badge: 'favicon.png',
+                        vibrate: [200, 100, 200]
+                    });
+                });
+            }
+        }
+
+        function showInAppBanner(title, body) {
+            const existingBanner = document.getElementById('ios-push-banner');
+            if (existingBanner) existingBanner.remove();
+
+            const banner = document.createElement('div');
+            banner.id = 'ios-push-banner';
+            banner.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-[#1e293b]/95 backdrop-blur-xl text-white p-3.5 rounded-2xl shadow-2xl border border-white/10 z-50 flex items-start space-x-3 transition-all duration-300 translate-y-[-30px] opacity-0';
+            
+            banner.innerHTML = `
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shrink-0 shadow-md overflow-hidden border border-white/20">
+                    <i class="fa-solid fa-building-columns text-base"></i>
+                </div>
+                <div class="flex-1 pr-1">
+                    <div class="flex justify-between items-center">
+                        <h4 class="font-semibold text-xs text-gray-300 tracking-wide">${title}</h4>
+                        <span class="text-[10px] text-gray-400">now</span>
+                    </div>
+                    <p class="text-xs text-white font-medium mt-0.5 leading-snug">${body}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white text-xs font-bold px-1 self-center">✕</button>
+            `;
+
+            document.body.appendChild(banner);
+
+            setTimeout(() => {
+                banner.classList.remove('translate-y-[-30px]', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                if (banner.parentElement) {
+                    banner.classList.add('translate-y-[-30px]', 'opacity-0');
+                    setTimeout(() => banner.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((reg) => {
+                        console.log('Service Worker registered successfully:', reg.scope);
+                    })
+                    .catch((err) => {
+                        console.error('Service Worker registration failed:', err);
+                    });
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', render);
     </script>
