@@ -53,6 +53,35 @@
         opacity: 0 !important;
         pointer-events: none !important;
     }
+    /* Spotlight Target Highlight */
+    .tour-spotlight-active {
+        position: relative !important;
+        z-index: 60 !important;
+        box-shadow: 0 0 0 4px #ffffff, 0 0 0 9999px rgba(2, 6, 23, 0.80) !important;
+        outline: 2px dashed #ffffff;
+        outline-offset: 6px;
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    /* Tooltip Speech Bubble Arrow */
+    .tour-arrow-up {
+        position: absolute;
+        top: -7px;
+        width: 14px;
+        height: 14px;
+        background: #ffffff;
+        transform: rotate(45deg);
+    }
+
+    .tour-arrow-down {
+        position: absolute;
+        bottom: -7px;
+        width: 14px;
+        height: 14px;
+        background: #ffffff;
+        transform: rotate(45deg);
+    }
 </style>
 
 
@@ -169,13 +198,86 @@
             { name: 'Business Complete', tag: 'Business', desc: 'Invoicing, multi-user access and merchant deposits.', badge: 'Free first year' }
         ];
 
-        const countryBanks = {
+                const countryBanks = {
             "United States": ["Chase Bank", "Bank of America", "Wells Fargo", "Citibank", "U.S. Bank", "PNC Bank"],
-            "Nigeria": ["Access Bank", "Guaranty Trust Bank (GTB)", "First Bank of Nigeria", "United Bank for Africa (UBA)", "Zenith Bank", "Opay", "Moniepoint"],
+            "Canada": ["Royal Bank of Canada (RBC)", "Toronto-Dominion Bank (TD)", "Scotiabank", "Bank of Montreal (BMO)", "CIBC", "National Bank of Canada"],
             "United Kingdom": ["Barclays", "HSBC UK", "Lloyds Bank", "NatWest", "Santander UK", "Monzo"],
-            "Canada": ["Royal Bank of Canada (RBC)", "Toronto-Dominion Bank (TD)", "Scotiabank", "Bank of Montreal (BMO)", "CIBC"],
-            "Germany": ["Deutsche Bank", "Commerzbank", "KfW", "DZ Bank", "Postbank"],
-            "France": ["BNP Paribas", "Crédit Agricole", "Société Générale", "BPCE", "La Banque Postale"]
+            "Germany": ["Deutsche Bank", "Commerzbank", "BNP Paribas", "Crédit Agricole", "Société Générale", "ING Group"],
+            "France": ["Deutsche Bank", "Commerzbank", "BNP Paribas", "Crédit Agricole", "Société Générale", "ING Group"],
+            "Nigeria": ["Access Bank", "Guaranty Trust Bank (GTB)", "First Bank of Nigeria", "United Bank for Africa (UBA)", "Zenith Bank", "Opay", "Moniepoint"],
+            "Albania": ["Banka Kombëtare Tregtare (BKT)", "Raiffeisen Bank Albania", "Credins Bank", "Intesa Sanpaolo Bank Albania", "OTP Bank Albania"],
+            "Andorra": ["Andbank", "MoraBanc", "Creand (Crèdit Andorrà)"],
+            "Austria": ["Erste Group Bank", "Raiffeisen Bank International", "UniCredit Bank Austria", "BAWAG Group", "Oberbank"],
+            "Belarus": ["Belarusbank", "Belagroprombank", "Priorbank", "Belinvestbank", "Alfa-Bank Belarus"],
+            "Belgium": ["BNP Paribas Fortis", "KBC Bank", "ING Belgium", "Belfius Bank", "Argenta Bank"],
+            "Bosnia and Herzegovina": ["UniCredit Bank Mostar", "Raiffeisen Bank dd BiH", "NLB Banka", "Intesa Sanpaolo Banka BiH", "Nova Banka"],
+            "Croatia": ["Zagrebačka banka (UniCredit)", "Privredna banka Zagreb (PBZ)", "Erste & Steiermärkische Bank", "OTP banka Hrvatska", "Raiffeisenbank Austria"],
+            "Cyprus": ["Bank of Cyprus", "Hellenic Bank", "Eurobank Cyprus", "Alpha Bank Cyprus", "AstroBank"],
+            "Czech Republic": ["Česká spořitelna", "ČSOB", "Komerční banka", "UniCredit Bank Czech Republic", "Raiffeisenbank Czech Republic"],
+            "Australia": ["Commonwealth Bank (CommBank)", "Westpac", "ANZ Bank", "National Australia Bank (NAB)", "Macquarie Bank", "ING Australia"],
+            "Norway": ["DNB Bank", "Nordea Bank", "SpareBank 1 SR-Bank", "SpareBank 1 Østlandet", "Sbanken", "Handelsbanken Norway"],
+            "Denmark": ["Danske Bank", "Nykredit", "Jyske Bank", "Nordea Danmark", "Sydbank"],
+            "Estonia": ["Swedbank Estonia", "SEB Pank", "LHV Pank", "Luminor Bank", "Coop Pank"],
+            "Finland": ["OP Financial Group", "Nordea Finland", "Danske Bank Finland", "Aktia Bank", "S-Bank"],
+            "Greece": ["National Bank of Greece", "Piraeus Bank", "Alpha Bank", "Eurobank", "Optima Bank"],
+            "Hungary": ["OTP Bank", "MBH Bank", "K&H Bank", "UniCredit Bank Hungary", "Erste Bank Hungary"],
+            "Iceland": ["Landsbankinn", "Íslandsbanki", "Arion Bank", "Kvika banki"],
+            "Ireland": ["Bank of Ireland", "Allied Irish Banks (AIB)", "Permanent TSB (PTSB)", "Revolut Ireland"],
+            "Italy": ["Intesa Sanpaolo", "UniCredit", "Banco BPM", "BPER Banca", "Banca Monte dei Paschi di Siena", "BNL"],
+            "Latvia": ["Swedbank Latvia", "SEB banka", "Citadele banka", "Luminor Latvia", "Rietumu Banka"],
+            "Liechtenstein": ["LGT Bank", "Liechtensteinische Landesbank (LLB)", "VP Bank"],
+            "Lithuania": ["Swedbank Lithuania", "SEB bankas", "Luminor Lithuania", "Šiaulių bankas", "Revolut Bank"],
+            "Luxembourg": ["Spuerkeess (BCEE)", "BGL BNP Paribas", "Banque Internationale à Luxembourg (BIL)", "ING Luxembourg"],
+            "Malta": ["Bank of Valletta", "HSBC Bank Malta", "APS Bank", "Lombard Bank Malta", "BNF Bank"],
+            "Moldova": ["maib (Moldova Agroindbank)", "Moldindconbank", "Victoriabank", "OTP Bank Moldova"],
+            "Monaco": ["CFM Indosuez Wealth", "CMB Monaco", "Société Générale Private Banking Monaco", "Barclays Monaco"],
+            "Montenegro": ["Crnogorska komercijalna banka (CKB)", "NLB Banka Podgorica", "Hipotekarna banka", "Erste Bank Montenegro"],
+            "Netherlands": ["ING Bank", "Rabobank", "ABN AMRO", "de Volksbank", "Triodos Bank"],
+            "North Macedonia": ["Komercijalna Banka Skopje", "Stopanska Banka", "NLB Banka Skopje", "Halkbank Skopje"],
+            "Poland": ["PKO Bank Polski", "Bank Pekao", "Santander Bank Polska", "ING Bank Śląski", "mBank"],
+            "Portugal": ["Caixa Geral de Depósitos", "Millennium bcp", "Novo Banco", "Banco Santander Totta", "Banco BPI"],
+            "Romania": ["Banca Transilvania", "Banca Comercială Română (BCR)", "BRD – Groupe Société Générale", "ING Bank Romania", "Raiffeisen Bank Romania"],
+            "San Marino": ["Banca di San Marino", "Cassa di Risparmio della Repubblica di San Marino", "Banca Sammarinese di Investimento"],
+            "Serbia": ["Banca Intesa Beograd", "OTP banka Srbija", "UniCredit Bank Srbija", "NLB Komercijalna banka", "Raiffeisen banka Beograd"],
+            "Slovakia": ["Slovenská sporiteľňa", "VÚB banka", "Tatra banka", "ČSOB Slovakia", "UniCredit Bank Slovakia"],
+            "Slovenia": ["NLB (Nova Ljubljanska banka)", "OTP banka Slovenia", "UniCredit Banka Slovenija", "Addiko Bank"],
+            "Spain": ["Banco Santander", "BBVA", "CaixaBank", "Banco Sabadell", "Bankinter"],
+            "Sweden": ["Swedbank", "SEB (Skandinaviska Enskilda Banken)", "Handelsbanken", "Nordea Sweden"],
+            "Switzerland": ["UBS", "PostFinance", "Raiffeisen Switzerland", "Zürcher Kantonalbank (ZKB)", "Julius Baer"],
+            "Ukraine": ["PrivatBank", "Oschadbank", "Raiffeisen Bank Ukraine", "UKRSIBBANK", "Monobank"],
+            "Vatican City": ["Institute for the Works of Religion (IOR)"],
+            "Antigua and Barbuda": ["Eastern Caribbean Amalgamated Bank (ECAB)", "CIBC FirstCaribbean", "ACB Caribbean"],
+            "Bahamas": ["RBC Royal Bank Bahamas", "CIBC FirstCaribbean Bahamas", "Scotiabank Bahamas", "Bank of The Bahamas"],
+            "Barbados": ["CIBC FirstCaribbean", "Republic Bank Barbados", "Scotiabank Barbados", "RBC Royal Bank Barbados"],
+            "Belize": ["Belize Bank", "Atlantic Bank", "Heritage Bank Belize", "National Bank of Belize"],
+            "Bolivia": ["Banco Nacional de Bolivia (BNB)", "Banco Mercantil Santa Cruz", "Banco Bisa", "Banco Unión", "Banco de Crédito de Bolivia"],
+            "Brazil": ["Itaú Unibanco", "Banco do Brasil", "Banco Bradesco", "Caixa Econômica Federal", "Santander Brasil", "Nubank"],
+            "Chile": ["Banco de Chile", "BancoEstado", "Banco Santander Chile", "Banco de Crédito e Inversiones (Bci)", "Scotiabank Chile"],
+            "Colombia": ["Bancolombia", "Banco de Bogotá", "Davivienda", "BBVA Colombia", "Banco de Occidente"],
+            "Costa Rica": ["Banco Nacional de Costa Rica", "Banco de Costa Rica (BCR)", "BAC Credomatic", "Banco Popular", "Scotiabank Costa Rica"],
+            "Cuba": ["Banco Nacional de Cuba", "Banco Popular de Ahorro (BPA)", "Banco de Crédito y Comercio (BANDEC)", "Banco Metropolitano"],
+            "Dominica": ["National Bank of Dominica", "CIBC FirstCaribbean Dominica", "Republic Bank Dominica"],
+            "Dominican Republic": ["Banco Popular Dominicano", "Banreservas", "Banco BHD", "Asociación Popular de Ahorros y Préstamos (APAP)"],
+            "Ecuador": ["Banco Pichincha", "Banco Guayaquil", "Produbanco", "Banco del Pacífico", "Banco Bolivariano"],
+            "El Salvador": ["Banco Agrícola", "Banco Cuscatlán", "BAC Credomatic El Salvador", "Banco Davivienda Salvadoreño"],
+            "Grenada": ["Grenada Co-operative Bank", "Republic Bank Grenada", "CIBC FirstCaribbean Grenada"],
+            "Guatemala": ["Banco Industrial", "Banrural", "Banco G&T Continental", "BAC Credomatic Guatemala", "BAM"],
+            "Guyana": ["Republic Bank Guyana", "Guyana Bank for Trade and Industry (GBTI)", "Demerara Bank", "Citizens Bank Guyana"],
+            "Haiti": ["Sogebank", "Unibank", "Banque Nationale de Crédit (BNC)", "Capital Bank"],
+            "Honduras": ["Banco Atlántida", "Banco Ficohsa", "Banco de Occidente Honduras", "BAC Credomatic Honduras", "Banpaís"],
+            "Jamaica": ["National Commercial Bank Jamaica (NCB)", "Scotiabank Jamaica", "JN Bank", "Sagicor Bank Jamaica", "First Global Bank"],
+            "Mexico": ["BBVA México", "Banorte", "Citibanamex", "Santander México", "HSBC México", "Scotiabank México"],
+            "Nicaragua": ["Banpro (Banco de la Producción)", "BAC Credomatic Nicaragua", "Banco Lafise Bancentro", "Banco Ficohsa Nicaragua"],
+            "Panama": ["Banco General", "Banistmo", "Banco Nacional de Panamá", "BAC Credomatic Panamá", "Global Bank"],
+            "Paraguay": ["Banco Itaú Paraguay", "Banco Continental", "Banco Nacional de Fomento (BNF)", "Sudameris Bank", "Banco Familiar"],
+            "Peru": ["Banco de Crédito del Perú (BCP)", "BBVA Perú", "Interbank", "Scotiabank Perú", "Banco de la Nación"],
+            "Saint Kitts and Nevis": ["St. Kitts-Nevis-Anguilla National Bank", "Republic Bank St. Kitts", "CIBC FirstCaribbean"],
+            "Saint Lucia": ["Bank of Saint Lucia", "1st National Bank St. Lucia", "CIBC FirstCaribbean St. Lucia", "Republic Bank St. Lucia"],
+            "Saint Vincent and the Grenadines": ["Bank of St. Vincent and the Grenadines", "CIBC FirstCaribbean", "Republic Bank"],
+            "Suriname": ["De Surinaamsche Bank (DSB)", "Hakrinbank", "Finabank", "Republic Bank Suriname"],
+            "Trinidad and Tobago": ["Republic Bank", "First Citizens Bank", "Scotiabank Trinidad and Tobago", "RBC Royal Bank"],
+            "Uruguay": ["Banco República (BROU)", "Banco Itaú Uruguay", "Banco Santander Uruguay", "BBVA Uruguay", "Scotiabank Uruguay"],
+            "Venezuela": ["Banco de Venezuela", "Banesco", "Banco Mercantil", "BBVA Provincial", "Banco Nacional de Crédito (BNC)"]
         };
 
         const defaultBanks = ["Heritage Global Treasury Bank", "International Trust Bank", "Standard Chartered", "Citibank Global"];
@@ -184,7 +286,8 @@
             { name: "United States", code: "US", currency: "USD", symbol: "$", phoneCode: "+1" },
             { name: "Canada", code: "CA", currency: "CAD", symbol: "CA$", phoneCode: "+1" },
             { name: "United Kingdom", code: "GB", currency: "GBP", symbol: "£", phoneCode: "+44" },
-            { name: "Eurozone / Germany / France", code: "EU", currency: "EUR", symbol: "€", phoneCode: "+33" },
+            { name: "Germany", code: "DE", currency: "EUR", symbol: "€", phoneCode: "+49" },
+            { name: "France", code: "FR", currency: "EUR", symbol: "€", phoneCode: "+33" },
             { name: "Nigeria", code: "NG", currency: "NGN", symbol: "₦", phoneCode: "+234" },
             { name: "Albania", code: "AL", currency: "ALL", symbol: "L", phoneCode: "+355" },
             { name: "Andorra", code: "AD", currency: "EUR", symbol: "€", phoneCode: "+376" },
@@ -195,6 +298,9 @@
             { name: "Croatia", code: "HR", currency: "EUR", symbol: "€", phoneCode: "+385" },
             { name: "Cyprus", code: "CY", currency: "EUR", symbol: "€", phoneCode: "+357" },
             { name: "Czech Republic", code: "CZ", currency: "CZK", symbol: "Kč", phoneCode: "+420" },
+            { name: "Australia", code: "AU", currency: "AUD", symbol: "A$", phoneCode: "+61" },
+            { name: "Norway", code: "NO", currency: "NOK", symbol: "kr", phoneCode: "+47" },
+
             { name: "Denmark", code: "DK", currency: "DKK", symbol: "kr", phoneCode: "+45" },
             { name: "Estonia", code: "EE", currency: "EUR", symbol: "€", phoneCode: "+372" },
             { name: "Finland", code: "FI", currency: "EUR", symbol: "€", phoneCode: "+358" },
@@ -272,8 +378,8 @@
     pin: ''
 };
 
-        // Listen to Auth State & Sync Live Firestore Balance Data
-                auth.onAuthStateChanged(async (user) => {
+                 // Listen to Auth State & Sync Live Firestore Balance Data
+        auth.onAuthStateChanged(async (user) => {
             if (user && !isLoading) {
                 userName = user.displayName ? user.displayName.split(' ')[0] : 'user';
                 
@@ -281,7 +387,7 @@
                     const doc = await db.collection('users').doc(user.uid).get();
                     if (doc.exists) {
                         userAccountDetails = doc.data();
-                        savingsBalance = userAccountDetails.savingsBalance || 0; // <--- ADD THIS
+                        savingsBalance = userAccountDetails.savingsBalance || 0;
                         if (!userAccountDetails.symbol && userAccountDetails.currencySymbol) {
                             userAccountDetails.symbol = userAccountDetails.currencySymbol;
                         }
@@ -307,12 +413,15 @@
 
                 currentView = 'dashboard';
                 render();
+                // (Tutorial trigger removed from here)
+
             } else if (!user && !isLoading) {
                 lastUserSession = JSON.parse(localStorage.getItem('Heritage_last_user'));
                 currentView = 'auth';
                 render();
             }
         });
+
 
 
         function triggerLoading(message, callback) {
@@ -344,7 +453,7 @@
             render();
         };
 
-                        function render() {
+                                        function render() {
             const container = document.getElementById('main-container');
 
             if (isLoading) {
@@ -400,8 +509,18 @@
                 container.innerHTML = renderSupportView();
             } else {
                 container.innerHTML = renderDashboardView();
+                
+                // ---> BULLETPROOF TUTORIAL LAUNCHER <---
+                if (auth.currentUser && !localStorage.getItem('Heritage_tutorial_completed') && !window._tutorialHasStarted) {
+                    window._tutorialHasStarted = true;
+                    setTimeout(() => {
+                        startOnboardingTutorial();
+                    }, 500);
+                }
             }
         }
+
+
 
         function renderAuthView() {
             return `
@@ -576,7 +695,7 @@
             `;
         }
 
-        function renderDashboardView() {
+                function renderDashboardView() {
             const displayBalance = isBalanceHidden ? '••••••••' : Number(userAccountDetails.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             const symbol = userAccountDetails.symbol || userAccountDetails.currencySymbol || '$';
             const curr = userAccountDetails.currency || 'USD';
@@ -604,7 +723,9 @@
 
                 <p class="text-xs text-white/60 mb-4">• Heritage BANK • PRIVATE BANKING</p>
 
-                <div class="bg-white rounded-3xl p-5 shadow-xl mb-4">
+                <!-- TOUR TARGET 1 -->
+                <div id="tour-balance-card" class="bg-white rounded-3xl p-5 shadow-xl mb-4">
+
                     <div class="flex justify-between items-center text-xs text-gray-500 font-medium mb-1">
                         <span>AVAILABLE BALANCE</span>
                         <i class="fa-regular ${isBalanceHidden ? 'fa-eye-slash' : 'fa-eye'} text-gray-400 cursor-pointer" onclick="toggleBalanceVisibility()"></i>
@@ -631,6 +752,7 @@
                     </div>
                 </div>
 
+                <!-- QUICK ACTIONS WITH TOUR IDs -->
                 <div class="bg-white rounded-3xl p-4 shadow-xl mb-4 grid grid-cols-5 gap-2 text-center">
                     <div class="flex flex-col items-center cursor-pointer group">
                         <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
@@ -638,24 +760,31 @@
                         </div>
                         <span class="text-[11px] font-medium text-gray-700">Add</span>
                     </div>
-                    <div class="flex flex-col items-center cursor-pointer group" onclick="switchView('receive')">
-    <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
-        <i class="fa-solid fa-arrow-down"></i>
-    </div>
-    <span class="text-[11px] font-medium text-gray-700">Receive</span>
-</div>
-<div class="flex flex-col items-center cursor-pointer group" onclick="switchView('transfer-account')">
-    <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
-        <i class="fa-solid fa-paper-plane"></i>
-    </div>
-    <span class="text-[11px] font-medium text-gray-700">Transfer</span>
-</div>
-<div class="flex flex-col items-center cursor-pointer group" onclick="switchView('withdraw-method')">
-    <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
-        <i class="fa-solid fa-arrow-up"></i>
-    </div>
-    <span class="text-[11px] font-medium text-gray-700">Withdraw</span>
-</div>
+                    
+                    <!-- TOUR TARGET 2 -->
+                    <div id="tour-receive-btn" class="flex flex-col items-center cursor-pointer group" onclick="switchView('receive')">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-700">Receive</span>
+                    </div>
+
+                    <!-- TOUR TARGET 3 -->
+                    <div id="tour-transfer-btn" class="flex flex-col items-center cursor-pointer group" onclick="switchView('transfer-account')">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-700">Transfer</span>
+                    </div>
+
+                    <!-- TOUR TARGET 4 -->
+                    <div id="tour-withdraw-btn" class="flex flex-col items-center cursor-pointer group" onclick="switchView('withdraw-method')">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </div>
+                        <span class="text-[11px] font-medium text-gray-700">Withdraw</span>
+                    </div>
+
                     <div class="flex flex-col items-center cursor-pointer group">
                         <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-base mb-1 group-hover:bg-blue-600 group-hover:text-white transition shadow-sm">
                             <i class="fa-solid fa-braille"></i>
@@ -664,7 +793,7 @@
                     </div>
                 </div>
 
-                                <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="grid grid-cols-2 gap-3 mb-4">
                     <div class="bg-white rounded-2xl p-4 shadow-md">
                         <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">CHECKING</span>
                         <div class="text-lg font-bold text-gray-900 mt-1">${isBalanceHidden ? '••••' : `${symbol}${displayBalance}`}</div>
@@ -712,29 +841,28 @@
                 </div>
 
                 <div class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-6 py-2.5 flex justify-between items-center text-gray-400 text-xs z-50 shadow-lg">
-    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('dashboard')">
-        <i class="fa-solid fa-house text-base mb-0.5"></i>
-        <span class="text-[10px] font-medium">Home</span>
-    </div>
-    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('activity')">
-        <i class="fa-solid fa-chart-line text-base mb-0.5"></i>
-        <span class="text-[10px] font-medium">Activity</span>
-    </div>
-    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('transfer-account')">
-        <i class="fa-solid fa-paper-plane text-base mb-0.5"></i>
-        <span class="text-[10px] font-medium">Send</span>
-    </div>
-    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('card')">
-        <i class="fa-regular fa-credit-card text-base mb-0.5"></i>
-        <span class="text-[10px] font-medium">Card</span>
-    </div>
-    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('profile')">
-        <i class="fa-regular fa-user text-base mb-0.5"></i>
-        <span class="text-[10px] font-medium">Profile</span>
-    </div>
-</div>
+                    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('dashboard')">
+                        <i class="fa-solid fa-house text-base mb-0.5"></i>
+                        <span class="text-[10px] font-medium">Home</span>
+                    </div>
+                    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('activity')">
+                        <i class="fa-solid fa-chart-line text-base mb-0.5"></i>
+                        <span class="text-[10px] font-medium">Activity</span>
+                    </div>
+                    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('transfer-account')">
+                        <i class="fa-solid fa-paper-plane text-base mb-0.5"></i>
+                        <span class="text-[10px] font-medium">Send</span>
+                    </div>
+                    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('card')">
+                        <i class="fa-regular fa-credit-card text-base mb-0.5"></i>
+                        <span class="text-[10px] font-medium">Card</span>
+                    </div>
+                    <div class="flex flex-col items-center hover:text-blue-600 cursor-pointer" onclick="switchView('profile')">
+                        <i class="fa-regular fa-user text-base mb-0.5"></i>
+                        <span class="text-[10px] font-medium">Profile</span>
+                    </div>
+                </div>
 
-                                <!-- FLOATING SUPPORT WIDGET (HOME DASHBOARD ONLY) -->
                 <div class="fixed bottom-20 right-4 z-40 pointer-events-auto">
                     <button type="button" onclick="window.openSmartSuppChat(); return false;" class="bg-blue-600 hover:bg-blue-700 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center text-lg transition transform hover:scale-105 cursor-pointer">
                         <i class="fa-solid fa-headset pointer-events-none"></i>
@@ -742,6 +870,7 @@
                 </div>
             `;
         }
+
 
         function renderProfileView() {
             return `
@@ -1663,7 +1792,7 @@
             render();
         };
 
-                window.handleExecuteTransfer = async function() {
+                        window.handleExecuteTransfer = async function() {
             const pinVal = document.getElementById('transfer-pin-val').value.trim();
             if (pinVal.length < 4) {
                 alert('Please enter a valid 4-digit transaction PIN.');
@@ -1701,7 +1830,7 @@
 
                 userAccountDetails.balance = newSenderBalance;
 
-                const symbol = userAccountDetails.symbol || '$';
+                const symbol = userAccountDetails.symbol || userAccountDetails.currencySymbol || '$';
                 const now = new Date();
                 lastTransaction = {
                     amount: transferData.amount,
@@ -1742,11 +1871,13 @@
                     isDebit: true
                 });
 
-                // Trigger push notification once transfer succeeds
-                requestNotificationPermissionAndNotify(
-                    "Heritage Bank: Money Sent 💸", 
-                    `You successfully sent ${symbol}${Number(transferData.amount).toLocaleString()} to ${transferData.recipientName}.`
-                );
+                // Optional native browser notification check if supported
+                if (typeof requestNotificationPermissionAndNotify === 'function') {
+                    requestNotificationPermissionAndNotify(
+                        "Heritage Bank: Money Sent 💸", 
+                        `You successfully sent ${symbol}${Number(transferData.amount).toLocaleString()} to ${transferData.recipientName}.`
+                    );
+                }
 
                 isLoading = false;
                 currentView = 'receipt';
@@ -2405,10 +2536,10 @@ function renderCardView() {
 
         let transactionListener = null;
 
-                function listenForIncomingTransactions(userId) {
+                        function listenForIncomingTransactions(userId) {
             if (transactionListener) transactionListener();
 
-            // Listen to all transactions for this user without strict server-side sorting that requires indexes
+            // Listen to all transactions for this user where they are the recipient
             transactionListener = db.collection('transactions')
                 .where('recipientUid', '==', userId)
                 .onSnapshot(async (snapshot) => {
@@ -2416,36 +2547,30 @@ function renderCardView() {
                         // Only trigger when a brand new transaction document is added
                         if (change.type === 'added') {
                             const txData = change.doc.data();
-                            const txTime = txData.timestamp?.toMillis() || Date.now();
-                            const now = Date.now();
+                            const symbol = txData.symbol || '$';
+                            const sender = txData.senderName || 'A Heritage User';
                             
-                            // Check if transaction happened within the last 60 seconds
-                            if (now - txTime < 60000) {
-                                const symbol = txData.symbol || '$';
-                                const sender = txData.senderName || 'A Heritage User';
-                                
-                                try {
-                                    // 1. Fetch updated user balance from Firestore
-                                    const userDoc = await db.collection('users').doc(userId).get();
-                                    if (userDoc.exists) {
-                                        userAccountDetails = userDoc.data();
-                                    }
-                                    
-                                    // 2. Refresh local transaction list array
-                                    await fetchUserTransactions(userId, userAccountDetails.accountNumber);
-                                    
-                                    // 3. Redraw UI so balance & activity update live instantly
-                                    render();
-                                } catch (err) {
-                                    console.error("Live update error:", err);
+                            try {
+                                // 1. Fetch updated user balance from Firestore immediately
+                                const userDoc = await db.collection('users').doc(userId).get();
+                                if (userDoc.exists) {
+                                    userAccountDetails = userDoc.data();
                                 }
-
-                                // 4. Trigger the push notification banner & alert
-                                requestNotificationPermissionAndNotify(
-                                    "Heritage Bank: Money Received 💰",
-                                    `You received ${symbol}${Number(txData.amount).toLocaleString()} from ${sender}.`
-                                );
+                                
+                                // 2. Refresh local transaction list array
+                                await fetchUserTransactions(userId, userAccountDetails.accountNumber);
+                                
+                                // 3. Redraw UI so balance & activity update live instantly
+                                render();
+                            } catch (err) {
+                                console.error("Live update error:", err);
                             }
+
+                            // 4. Trigger the push notification banner & credit alert
+                            requestNotificationPermissionAndNotify(
+                                "Heritage Bank: Money Received 💰",
+                                `You received ${symbol}${Number(txData.amount).toLocaleString()} from ${sender}.`
+                            );
                         }
                     });
                 }, (error) => {
@@ -2454,7 +2579,7 @@ function renderCardView() {
         }
 
 
-        function requestNotificationPermissionAndNotify(title, body) {
+                function requestNotificationPermissionAndNotify(title, body) {
             showInAppBanner(title, body);
 
             if ('Notification' in window) {
@@ -2470,6 +2595,24 @@ function renderCardView() {
             }
         }
 
+        function showInAppBanner(title, body) {
+            const banner = document.createElement('div');
+            banner.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-gray-900 text-white p-4 rounded-2xl shadow-2xl z-[100] flex items-center space-x-3 border border-white/10';
+            banner.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0 font-bold">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+                <div class="flex-1">
+                    <h4 class="font-bold text-xs">${title}</h4>
+                    <p class="text-[11px] text-gray-300 mt-0.5">${body}</p>
+                </div>
+            `;
+            document.body.appendChild(banner);
+            setTimeout(() => {
+                banner.remove();
+            }, 4000);
+        }
+
         function showLocalPush(title, body) {
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.ready.then((registration) => {
@@ -2483,41 +2626,174 @@ function renderCardView() {
             }
         }
 
-        function showInAppBanner(title, body) {
-            const existingBanner = document.getElementById('ios-push-banner');
-            if (existingBanner) existingBanner.remove();
+                let currentTutorialStep = 0;
+        let installPromptAcknowledged = false;
 
-            const banner = document.createElement('div');
-            banner.id = 'ios-push-banner';
-            banner.className = 'fixed top-4 left-4 right-4 max-w-md mx-auto bg-[#1e293b]/95 backdrop-blur-xl text-white p-3.5 rounded-2xl shadow-2xl border border-white/10 z-50 flex items-start space-x-3 transition-all duration-300 translate-y-[-30px] opacity-0';
-            
-            banner.innerHTML = `
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center shrink-0 shadow-md overflow-hidden border border-white/20">
-                    <i class="fa-solid fa-building-columns text-base"></i>
-                </div>
-                <div class="flex-1 pr-1">
-                    <div class="flex justify-between items-center">
-                        <h4 class="font-semibold text-xs text-gray-300 tracking-wide">${title}</h4>
-                        <span class="text-[10px] text-gray-400">now</span>
-                    </div>
-                    <p class="text-xs text-white font-medium mt-0.5 leading-snug">${body}</p>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-white text-xs font-bold px-1 self-center">✕</button>
-            `;
+        const tutorialSteps = [
+            {
+                targetId: "install-banner",
+                title: "Install Heritage Bank (Mandatory)",
+                desc: "Tap 'Install' above (or Share → Add to Home Screen) so you receive real-time lock-screen credit & debit alerts.",
+                mandatoryInstall: true
+            },
+            {
+                targetId: "tour-balance-card",
+                title: "Account & Balance",
+                desc: "View your live checking balance, toggle privacy visibility, and copy your account or routing numbers.",
+                mandatoryInstall: false
+            },
+            {
+                targetId: "tour-receive-btn",
+                title: "Receive Money",
+                desc: "Tap Receive to generate your personal QR code or copy your 10-digit account number for instant deposits.",
+                mandatoryInstall: false
+            },
+            {
+                targetId: "tour-transfer-btn",
+                title: "Transfer Funds",
+                desc: "Send money instantly to any Heritage Bank user by account number or by scanning their QR code.",
+                mandatoryInstall: false
+            },
+            {
+                targetId: "tour-withdraw-btn",
+                title: "Withdraw Money",
+                desc: "Cash out your funds directly to your local bank account, PayPal, or CashApp.",
+                mandatoryInstall: false
+            }
+        ];
 
-            document.body.appendChild(banner);
+        window.startOnboardingTutorial = function() {
+            // Ensure install banner is visible if they previously dismissed it
+            const banner = document.getElementById('install-banner');
+            if (banner) banner.style.display = 'flex';
 
-            setTimeout(() => {
-                banner.classList.remove('translate-y-[-30px]', 'opacity-0');
-            }, 10);
+            currentTutorialStep = 0;
+            renderTutorialTooltip();
+        };
 
-            setTimeout(() => {
-                if (banner.parentElement) {
-                    banner.classList.add('translate-y-[-30px]', 'opacity-0');
-                    setTimeout(() => banner.remove(), 300);
-                }
-            }, 5000);
+        window.nextTutorialStep = function() {
+            const step = tutorialSteps[currentTutorialStep];
+
+            // Enforce mandatory install acknowledgment on Step 1
+            if (step.mandatoryInstall && !installPromptAcknowledged) {
+                alert("Mandatory Step: Tap the 'Install' button highlighted at the top of your screen, or tap 'I Understand & Will Install' below to proceed.");
+                installPromptAcknowledged = true;
+                renderTutorialTooltip();
+                return;
+            }
+
+            clearTutorialHighlight();
+            currentTutorialStep++;
+
+            if (currentTutorialStep >= tutorialSteps.length) {
+                closeTutorialModal();
+            } else {
+                renderTutorialTooltip();
+            }
+        };
+
+        window.closeTutorialModal = function() {
+            clearTutorialHighlight();
+            localStorage.setItem('Heritage_tutorial_completed', 'true');
+            const tooltip = document.getElementById('spotlight-tooltip-box');
+            const blocker = document.getElementById('tour-click-blocker');
+            if (tooltip) tooltip.remove();
+            if (blocker) blocker.remove();
+        };
+
+        function clearTutorialHighlight() {
+            document.querySelectorAll('.tour-spotlight-active').forEach(el => {
+                el.classList.remove('tour-spotlight-active');
+            });
         }
+
+        function renderTutorialTooltip() {
+            clearTutorialHighlight();
+
+            const existingTooltip = document.getElementById('spotlight-tooltip-box');
+            if (existingTooltip) existingTooltip.remove();
+
+            let blocker = document.getElementById('tour-click-blocker');
+            if (!blocker) {
+                blocker = document.createElement('div');
+                blocker.id = 'tour-click-blocker';
+                blocker.className = 'fixed inset-0 z-50 bg-transparent';
+                document.body.appendChild(blocker);
+            }
+
+            const step = tutorialSteps[currentTutorialStep];
+            const targetEl = document.getElementById(step.targetId);
+
+            if (!targetEl) {
+                nextTutorialStep();
+                return;
+            }
+
+            // Scroll target into view and apply spotlight ring
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetEl.classList.add('tour-spotlight-active');
+
+            // Allow clicking the actual Install button during Step 1
+            if (step.mandatoryInstall) {
+                targetEl.onclick = function() {
+                    installPromptAcknowledged = true;
+                };
+            }
+
+            setTimeout(() => {
+                const rect = targetEl.getBoundingClientRect();
+                const tooltip = document.createElement('div');
+                tooltip.id = 'spotlight-tooltip-box';
+                tooltip.className = 'fixed z-[70] bg-white text-gray-900 rounded-2xl p-4 shadow-2xl w-64 transition-all duration-200';
+
+                // Determine whether to place bubble below or above the highlighted element
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const placeBelow = spaceBelow > 180;
+
+                // Horizontal positioning clamped inside mobile screen width
+                const centerX = rect.left + (rect.width / 2);
+                let leftPos = centerX - 128; // half of w-64 (256px)
+                if (leftPos < 16) leftPos = 16;
+                if (leftPos + 256 > window.innerWidth - 16) {
+                    leftPos = window.innerWidth - 272;
+                }
+
+                // Arrow horizontal offset pointing directly at target center
+                let arrowLeft = centerX - leftPos - 7;
+                if (arrowLeft < 18) arrowLeft = 18;
+                if (arrowLeft > 224) arrowLeft = 224;
+
+                if (placeBelow) {
+                    tooltip.style.top = `${rect.bottom + 14}px`;
+                } else {
+                    tooltip.style.bottom = `${window.innerHeight - rect.top + 14}px`;
+                }
+                tooltip.style.left = `${leftPos}px`;
+
+                const isLast = currentTutorialStep === tutorialSteps.length - 1;
+                const btnText = step.mandatoryInstall && !installPromptAcknowledged
+                    ? 'Install First'
+                    : (isLast ? 'OK' : 'Next');
+
+                tooltip.innerHTML = `
+                    <div class="${placeBelow ? 'tour-arrow-up' : 'tour-arrow-down'}" style="left: ${arrowLeft}px;"></div>
+                    <p class="font-bold text-xs text-gray-900 mb-1">${step.title}</p>
+                    <p class="text-[11px] text-gray-600 leading-relaxed mb-3">${step.desc}</p>
+                    <div class="flex items-center justify-between pt-1">
+                        <span class="text-[11px] font-semibold text-gray-400">${currentTutorialStep + 1}/${tutorialSteps.length}</span>
+                        <div class="flex items-center space-x-2">
+                            ${!step.mandatoryInstall ? `<button onclick="closeTutorialModal()" class="text-[11px] text-gray-400 hover:text-gray-600 font-medium px-1">Skip</button>` : ''}
+                            <button onclick="nextTutorialStep()" class="bg-[#072545] text-white text-[11px] font-semibold px-4 py-1.5 rounded-lg shadow hover:bg-[#0b3563] transition">
+                                ${btnText}
+                            </button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(tooltip);
+            }, 150);
+        }
+
 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
